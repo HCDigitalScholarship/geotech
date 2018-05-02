@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+
+<h1>Transform page</h1>
+<p> Please Submit a file<p>
+<!--<form action="/action_page.php">-->
+
+	<form id="post_text" style="display:inline-block;" method="post" >
+	      		{% csrf_token %}
+	      		<div id="PostBlock" style="text-align:center;">
+	      		
+	      		{{form}}
+
+	      		<input type="submit" name="submit" value="Submit"> <br>
+	 		</form>
+	{{output}}
+
+</body>
+<html>
