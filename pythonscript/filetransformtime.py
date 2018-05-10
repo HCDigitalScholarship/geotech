@@ -2,6 +2,9 @@ import csv
 import googlemaps
 from datetime import datetime
 import time 
+from interruptingcow import timeout
+
+	
 
 def google(text):
 	print("Calling Api")
@@ -9,6 +12,9 @@ def google(text):
 	geocode_result = gmaps.geocode(text)
 	print("Api has been called")
 	return geocode_result
+	
+
+
 def valid(row):
 	if (row.find('http:')!=-1):
 		return False 
@@ -28,54 +34,36 @@ def transformfiletime(file):
 	with open(file, encoding="utf8", errors='ignore') as fd:
 		reader = csv.DictReader(fd)
 		for row in reader:
-			if(valid(row['address'])):
-				listr.append(row['address'])
-				
+			if(valid(row['address']) and (valid(row['city']) and valid(row['state']))):
+				listr.append(row['address'] +","+row['city']+","+row['state']+", USA")
+			elif(valid(row['address'])):
+				listr.append(row['address']+", USA")
 			else:
 				listr.append('N/A')
 				
 
-		for i in range(0,len(listr)):
-			if(n==100):
-				n=n-100
-				time.sleep(10) 
-				print("This is the row you are on: "+str(i))
-
-				if(valid(listr[i])):
-					try: 
-						print("Appending to output")
-						output.append(google(listr[i])[0]["geometry"]["location"])
-						print("Appended to output")
-					except:
-						print("Api Call fail")
-						output.append("Invalid Address Failed API Call") 
-					finally:
-						print("Api Call fail")
-						output.append("Invalid Address Failed API Call") 
-
-				else:
-					print("Api was not called for this row")
-					output.append("Invalid Address") 
-			else:
-				n=n+1
-				print("This is the row you are on: "+str(i))
-				if(valid(listr[i])):
-					try: 
-						print("Appending to output")
-						output.append(google(listr[i])[0]["geometry"]["location"])
-						print("Appended to output")
-					except:
-						print("Api Call fail")
-						output.append("Invalid Address Failed API Call") 
-
-
-				else:
-					print("Api was not called for this row")
-					output.append("Invalid Address") 
-
-			
+	for i in range(0,len(listr)):
+		print("This is the row you are on: "+str(i))
+		if(valid(listr[i])):
+			try:
+				with timeout(20, RuntimeError):
+					print("Appending to output")
+					output.append(google(listr[i])[0]["geometry"]["location"])
+					print("Appended to output")
+			except RuntimeError: 
+				print("Run time error occured")
+				output.append("Invalid Address run time error")
+				print("Appended to output")
+			except: 
+				print("Invalid adress")
+				output.append("Invalid Address Error")
+				print("Appended to output")
 				
-
+					
+		else:
+			print("Api was not called for this row")
+			output.append("Invalid Address") 
+				
 	return output
 	
 

@@ -7,14 +7,13 @@ def get_file(request):
     if request.method == 'POST':
         form=FileForm(request.POST,request.FILES)
         if form.is_valid():
-             with tempfile.NamedTemporaryFile(suffix='.txt', dir='/tmp/transform.csv', delete=False) as f:
-                f.write(form['your_file'].value().read())#.encode("utf-8"))
+             with tempfile.NamedTemporaryFile(dir='/tmp/', delete=False) as f:
+                f.write(form['your_file'].value())#.encode("utf-8"))
                 f.close
-                filename = '/tmp/transform.txt'
+                filename = f.filename
                 #output=pythonscript(filename)
                 output='it read the file :)'
                 f.close()
-                form=FileForm(request.POST['your_file'])
                 context={'form': form,'output':output}
                 return render(request, 'index.html', context)
 
@@ -26,7 +25,6 @@ def get_file(request):
 
     # if a GET (or any other method) we'll create a blank form
     else:
-        errors=0
         form = FileForm()
         output=''
         context={'form': form,'output':output}
